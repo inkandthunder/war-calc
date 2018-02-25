@@ -10,7 +10,11 @@ shinyUI(fluidPage(
   sidebarLayout(
     sidebarPanel(
    h4("Batting, Fielding & Baserunning WAR"),
-      # Decimal interval 
+   
+   selectInput("Pos", label = "Position:", 
+               choices = list("C","1B","2B","3B","SS", "LF","CF","RF","DH","P"), 
+               selected = "C"),  
+    # Decimal interval 
     sliderInput("OBP", "OBP:", 
                   min = 0, max = .5, value = 0.32, step=.001),
 
@@ -22,10 +26,6 @@ shinyUI(fluidPage(
       sliderInput("PA", "Plate Appearances:", 
                   min=0, max=750, value=0, step=1),
       
-      # Copy the line below to make a select box 
-      selectInput("Pos", label = "Position:", 
-                  choices = list("C","1B","2B","3B","SS", "LF","CF","RF","DH","P"), 
-                  selected = "C"),
       
       # Simple integer interval
       sliderInput("UZR", "Defense (relative to position):", 
@@ -56,59 +56,58 @@ shinyUI(fluidPage(
     
     # Show a text for the computed answer
     mainPanel(
-      #br(),br(),br(),br(),br(),br(),
-      #p(em("Estimate OBP & SLG in a park-neutral environment.")),
-      #br(),br(),
+
       h4("Total WAR:"),
       h1(textOutput("answer")),
       p(strong("Over a full season, an average player gets about 2 WAR, a good player 4, and a great player 6 or more.")),
-      
-      #br(),br(),br(),
-      
-      #p(em("Rate Defense (relative to position) & Baserunning on 20-80 scouting scale.")),
-      #p("50 is major league average & each grade up or down (10 points) is about a standard deviation."),
-      #p("A grade over a full season equates to about 3 runs for baserunning & 6 runs for defense."),
-      
+
       tags$hr(),
       h4("WAR Explained"),
       p("", em("Wins Above Replacement (WAR)"), " is an attempt by the sabermetric baseball community to summarize a player’s total contributions to their team in one statistic. You should always use more than one metric at a time when evaluating players, but WAR is all-inclusive and provides a useful reference point for comparing players. WAR offers an estimate to answer the question, “If this player got injured and their team had to replace them with a freely available minor leaguer or a AAAA player from their bench, how much value would the team be losing?” This value is expressed in a wins format, so we could say that Player X is worth +6.3 wins to their team while Player Y is only worth +3.5 wins, which means it is highly likely that Player X has been more valuable than Player Y."),
       p("WAR is not meant to be a perfectly precise indicator of a player’s contribution, but rather an estimate of their value to date. Given the imperfections of some of the available data and the assumptions made to calculate other components, WAR works best as an approximation. A 6 WAR player might be worth between 5.0 and 7.0 WAR, but it is pretty safe to say they are at least an All-Star level player and potentially an MVP."),
+  
+      #p("More info about WAR on ", tags$a(href= "www.fangraphs.com/library/misc/war/", "Fangraphs")),
 
       
-      h5("Position Players"),
-      em("WAR = (Batting Runs + Base Running Runs + Fielding Runs + Positional Adjustment + League Adjustment + Replacement Runs) / (Runs Per Win)"),
-      h5("Construction for Pitchers"),
-      em("WAR = [[([(League “FIP” – “FIP”) / Pitcher Specific Runs Per Win] + Replacement Level) * (IP/9)] * Leverage Multiplier for Relievers] + League Correction"),
-      h5("Fielding Independent Pitching with Infield Flies (ifFIP)"),
-      em("ifFIP = ((13*HR)+(3*(BB+HBP))-(2*(K+IFFB)))/IP + ifFIP constant"),br(),
-      em("ifFIP Constant = lgERA – (((13*lgHR)+(3*(lgBB+lgHBP))-(2*(lgK+lgIFFB)))/lgIP)"),
-      h5("Scaling ifFIP to RA9"),
-      em("Adjustment = lgRA9 – lgERA"),br(),
-      em("FIPR9 = ifFIP + Adjustment"),
-      h5("Park Adjustment"),
-      em("pFIPR9 = FIPR9 / (PF/100)"),
-      h5("Compare to AL/NL Average"),
-      em("Runs Above Average Per 9 (RAAP9) = AL or NL FIPR9 – pFIPR9"),
-      h5("Dynamic Runs Per Win"),
-      em("Dynamic RPW (dRPW) = ([([(18 – IP/G)*(AL or NL FIPR9)] + [(IP/G)*pFIPR9]) / 18] + 2)*1.5"),
-      h5("Converting to Games Per Win"),
-      em("Wins Per Game Above Average (WPGAA) = RAAP9 / dRPW"),
-      h5("Replacement Level"),
-      em("Replacement Level = 0.03*(1 – GS/G) + 0.12*(GS/G)"),
-      h5("Scaling to Innings Pitched"),
-      em("WPGAR = WPGAA + Replacement Level"),br(),
-      em("“WAR” = WPGAR * (IP/9)"),
-      h5("Leverage"),
-      em("LI Multiplier = (1 + gmLI) / 2"),
-      h5("Final Adjustments"),
-      em("Correction = WARIP * IP"),br(),
-      em("WAR = “WAR” + Correction"),
-      br(),br(),
-      p("More info about WAR on ", tags$a(href= "www.fangraphs.com/library/misc/war/", "Fangraphs"))
-      #br(),br(),br(),br(),br(),br(),br(),br(),br(),br(),
-      #p(em("Estimate ERA in a park-neutral environment with average luck & supporting defense.")),
-      #br(),p("This tool is calibrated to the environment of recent Major League Baseball"),
-      #p("")
+        tabsetPanel(type="tabs",
+                    tabPanel("Position Players",
+                             h5("Position Players"),
+                             em("WAR = (Batting Runs + Base Running Runs + Fielding Runs + Positional Adjustment + League Adjustment + Replacement Runs) / (Runs Per Win)")
+                             
+                             ),
+                    tabPanel("Pitchers",
+                             h5("Construction for Pitchers"),
+                             em("WAR = [[([(League “FIP” – “FIP”) / Pitcher Specific Runs Per Win] + Replacement Level) * (IP/9)] * Leverage Multiplier for Relievers] + League Correction"),
+                             h5("Fielding Independent Pitching with Infield Flies (ifFIP)"),
+                             em("ifFIP = ((13*HR)+(3*(BB+HBP))-(2*(K+IFFB)))/IP + ifFIP constant"),br(),
+                             em("ifFIP Constant = lgERA – (((13*lgHR)+(3*(lgBB+lgHBP))-(2*(lgK+lgIFFB)))/lgIP)"),
+                             h5("Scaling ifFIP to RA9"),
+                             em("Adjustment = lgRA9 – lgERA"),br(),
+                             em("FIPR9 = ifFIP + Adjustment"),
+                             h5("Park Adjustment"),
+                             em("pFIPR9 = FIPR9 / (PF/100)"),
+                             h5("Compare to AL/NL Average"),
+                             em("Runs Above Average Per 9 (RAAP9) = AL or NL FIPR9 – pFIPR9"),
+                             h5("Dynamic Runs Per Win"),
+                             em("Dynamic RPW (dRPW) = ([([(18 – IP/G)*(AL or NL FIPR9)] + [(IP/G)*pFIPR9]) / 18] + 2)*1.5"),
+                             h5("Converting to Games Per Win"),
+                             em("Wins Per Game Above Average (WPGAA) = RAAP9 / dRPW"),
+                             h5("Replacement Level"),
+                             em("Replacement Level = 0.03*(1 – GS/G) + 0.12*(GS/G)"),
+                             h5("Scaling to Innings Pitched"),
+                             em("WPGAR = WPGAA + Replacement Level"),br(),
+                             em("“WAR” = WPGAR * (IP/9)"),
+                             h5("Leverage"),
+                             em("LI Multiplier = (1 + gmLI) / 2"),
+                             h5("Final Adjustments"),
+                             em("Correction = WARIP * IP"),br(),
+                             em("WAR = “WAR” + Correction")
+                             ),
+                    br(),
+                    p("More info about WAR on ", tags$a(href= "www.fangraphs.com/library/misc/war/", "Fangraphs"))
+        )
+      
+      
     )
   )
 

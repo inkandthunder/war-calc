@@ -1,0 +1,12 @@
+name: war-calc
+title: war-calc
+username:
+account: inkandthunder
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 288251
+bundleId: 1239215
+url: https://inkandthunder.shinyapps.io/war-calc/
+when: 1519584439.39116
+asMultiple: FALSE
+asStatic: FALSE
